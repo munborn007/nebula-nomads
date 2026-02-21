@@ -1,5 +1,7 @@
 # Nebula Nomads
 
+AI-Powered Space Nomads 🌌 | Built on xAI's Cosmic Vision | The NFT Drop That's Redefining Exploration | Mint Q2 2026 | Join the Journey 🚀 #NebulaNomads
+
 AI-powered space exploration NFT project inspired by xAI. Features the world-first **Cosmic Echo**: a real-time, interactive AI-driven nebula generator with WebGL and procedural generation, plus Web Audio space hums synced to the visuals.
 
 ## Stack
@@ -13,23 +15,24 @@ AI-powered space exploration NFT project inspired by xAI. Features the world-fir
 ```bash
 npm install
 cp .env.example .env.local
-# Edit .env.local with NEXT_PUBLIC_GA_ID, NEXT_PUBLIC_RECAPTCHA_SITE_KEY, etc. if desired
+# Edit .env.local with NEXT_PUBLIC_CONTRACT_ADDRESS, NEXT_PUBLIC_GA_ID, etc. if desired
 npm run dev
 ```
 
 ## Deploy to Vercel
 
 1. Push the repo to GitHub and import the project in Vercel.
-2. Set environment variables in Vercel (e.g. `NEXT_PUBLIC_GA_ID`, `NEXT_PUBLIC_SITE_URL`).
+2. Set environment variables in Vercel (e.g. `NEXT_PUBLIC_CONTRACT_ADDRESS`, `NEXT_PUBLIC_GA_ID`, `NEXT_PUBLIC_SITE_URL`).
 3. Deploy with one command: **Deploy** in the Vercel dashboard or `vercel` CLI.
 
 ## Features
 
-- **Cosmic Echo:** Personalize the nebula with a phrase (e.g. wallet address); mouse/touch morphs the nebula; optional space sound (Web Audio).
-- **Pages:** Home (hero, countdown, gallery), Mint (wallet, supply, Dutch auction, live feed), Roadmap, About, Community, FAQ.
-- **Global:** Fixed header with wallet connect, footer, wormhole-style page transitions.
-- **SEO:** Meta tags, sitemap, robots.txt. Google Analytics optional via `NEXT_PUBLIC_GA_ID`.
+- **20 NFTs:** Explore Nomads grid with video thumbnails, rarity badges, neon cyberpunk styling
+- **Cosmic Echo:** Personalize the nebula with a phrase (e.g. wallet address); mouse/touch morphs the nebula; optional space sound (Web Audio)
+- **Pages:** Home (hero, countdown, NFT gallery), Mint (wallet, supply, Dutch auction, live feed), AR Viewer, Roadmap, About, Community, FAQ
+- **Global:** Fixed header with wallet connect, Twitter link, footer, wormhole-style page transitions
+- **SEO:** Meta tags, sitemap, robots.txt. Google Analytics optional via `NEXT_PUBLIC_GA_ID`
 
-## Smart contract
+## Minting
 
-Use `NEXT_PUBLIC_CONTRACT_ADDRESS` and extend `src/utils/web3.ts` (CONTRACT_ABI) when the contract is ready. The mint page currently simulates the mint flow.
+See **MINTING.md** for demo vs on-chain minting. Set `NEXT_PUBLIC_CONTRACT_ADDRESS` in `.env.local` for real blockchain minting.
