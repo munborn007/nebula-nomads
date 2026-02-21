@@ -1,0 +1,96 @@
+@import "tailwindcss";
+
+/* Cosmic theme - dark by default */
+:root {
+  --background: #030712;
+  --foreground: #e2e8f0;
+  --cosmic-primary: #6366f1;
+  --cosmic-secondary: #8b5cf6;
+  --nebula-glow: rgba(99, 102, 241, 0.4);
+  --star-color: rgba(255, 255, 255, 0.9);
+  --wormhole-gradient: radial-gradient(ellipse at center, #1e1b4b 0%, #030712 70%);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-orbitron), system-ui, sans-serif;
+  --font-display: var(--font-orbitron), system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Cosmic glow effects */
+.glow-text {
+  text-shadow: 0 0 20px var(--nebula-glow), 0 0 40px var(--nebula-glow);
+}
+
+.glow-border {
+  box-shadow: 0 0 15px var(--nebula-glow), inset 0 0 15px rgba(99, 102, 241, 0.05);
+}
+
+/* Holographic countdown */
+.holographic {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 30px rgba(99, 102, 241, 0.3);
+}
+
+/* Nebula canvas container */
+.nebula-canvas-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.nebula-canvas-container.interactive {
+  pointer-events: auto;
+}
+
+/* Wormhole overlay */
+.wormhole-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  background: var(--wormhole-gradient);
+  opacity: 0;
+}
+
+/* Scrollbar cosmic style */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #6366f1, #8b5cf6);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #818cf8;
+}
