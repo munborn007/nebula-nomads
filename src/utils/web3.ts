@@ -1,4 +1,5 @@
 import Web3 from 'web3';
+import type { ContractAbi } from 'web3-types';
 
 declare global {
   interface Window {
@@ -303,19 +304,33 @@ export function formatAddress(addr: string): string {
   return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
 }
 
-export const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || '0x0000000000000000000000000000000000000000';
+/** Zero address used when contract is not configured (demo mode). */
+const ZERO_ADDR = '0x0000000000000000000000000000000000000000';
+
+export const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || ZERO_ADDR;
 export const MAX_SUPPLY = 10000;
-export const CONTRACT_ABI = [
+
+/** ABI for mint, totalSupply, balanceOf. Type as ContractAbi for web3.eth.Contract. */
+export const CONTRACT_ABI: ContractAbi = [
   { inputs: [{ name: 'quantity', type: 'uint256' }], name: 'mint', outputs: [], stateMutability: 'payable', type: 'function' },
   { inputs: [], name: 'totalSupply', outputs: [{ name: '', type: 'uint256' }], stateMutability: 'view', type: 'function' },
   { inputs: [{ name: 'owner', type: 'address' }], name: 'balanceOf', outputs: [{ name: '', type: 'uint256' }], stateMutability: 'view', type: 'function' },
-] as const;
+];
 
-/** Contract instance for reads/writes. Returns null if no web3 or zero address. */
+/**
+ * Contract instance for reads/writes. Returns null if no web3 or contract not configured.
+ * When CONTRACT_ADDRESS is unset/zero, logs a warning and returns null (demo mode).
+ */
 export function getContract(): InstanceType<Web3['eth']['Contract']> | null {
   const web3 = getWeb3();
-  if (!web3 || !CONTRACT_ADDRESS || CONTRACT_ADDRESS === '0x0000000000000000000000000000000000000000') return null;
-  return new web3.eth.Contract(CONTRACT_ABI as unknown as Parameters<Web3['eth']['Contract']>[0], CONTRACT_ADDRESS);
+  if (!web3) return null;
+  if (!CONTRACT_ADDRESS || CONTRACT_ADDRESS === ZERO_ADDR) {
+    if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
+      console.warn('CONTRACT_ADDRESS not set — using demo mode. Set NEXT_PUBLIC_CONTRACT_ADDRESS in .env.local for on-chain minting.');
+    }
+    return null;
+  }
+  return new web3.eth.Contract(CONTRACT_ABI, CONTRACT_ADDRESS);
 }
 
 /** Current minted count from chain. Resolves to 0 if contract not deployed or read fails. */
