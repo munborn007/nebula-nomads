@@ -17,7 +17,7 @@ const NomadARViewer = dynamic(() => import('@/components/NomadARViewer'), {
 const TWITTER_URL = 'https://x.com/NomadsOfNebula';
 
 const SOCIAL = [
-  { label: 'Discord', href: 'https://discord.gg/nebula-nomads', icon: 'Discord' },
+  { label: 'Discord', href: 'https://discord.gg/your-invite', icon: 'Discord' },
 ];
 
 export default function CommunityPage() {
@@ -146,8 +146,16 @@ export default function CommunityPage() {
         transition={{ delay: 0.3 }}
         className="mt-10 rounded-xl holo-card p-6"
       >
-        <h3 className="font-medium text-white">Discord / Forum</h3>
-        <p className="mt-2 text-slate-400">Join the conversation. Discord widget placeholder.</p>
+        <h3 className="font-medium text-white">Discord</h3>
+        <p className="mt-2 text-slate-400">Join the conversation.</p>
+        <a
+          href="https://discord.gg/your-invite"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-3 inline-flex items-center rounded-lg border border-neon-cyan/50 bg-neon-cyan/10 px-4 py-2 text-neon-cyan hover:bg-neon-cyan/20"
+        >
+          Join Discord →
+        </a>
       </motion.section>
     </div>
   );

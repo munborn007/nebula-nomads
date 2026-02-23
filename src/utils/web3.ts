@@ -125,6 +125,10 @@ export async function connectWithProvider(provider: Window['ethereum']): Promise
   return state;
 }
 
+/**
+ * Returns Web3 instance when a wallet is available. Null if no wallet extension (e.g. MetaMask) is installed or page is SSR.
+ * For mint/balance calls, check getContract() and handle "Wallet not connected" / "Contract not configured" in UI.
+ */
 export function getWeb3(): Web3 | null {
   if (typeof window === 'undefined') return null;
   const provider = getEthereumProvider();
@@ -333,14 +337,17 @@ export function getContract(): InstanceType<Web3['eth']['Contract']> | null {
   return new web3.eth.Contract(CONTRACT_ABI, CONTRACT_ADDRESS);
 }
 
-/** Current minted count from chain. Resolves to 0 if contract not deployed or read fails. */
+/** Current minted count from chain. Resolves to 0 if no wallet, contract not set, or read fails. */
 export async function getMintedSupply(): Promise<number> {
   const contract = getContract();
   if (!contract) return 0;
   try {
     const n = await contract.methods.totalSupply().call();
     return Number(n);
-  } catch {
+  } catch (e) {
+    if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
+      console.warn('getMintedSupply failed (wrong network or contract):', e);
+    }
     return 0;
   }
 }

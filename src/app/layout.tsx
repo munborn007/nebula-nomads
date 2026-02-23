@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Orbitron } from 'next/font/google';
+import { Analytics } from '@vercel/analytics/react';
 import './globals.css';
 import 'react-vertical-timeline-component/style.min.css';
 import Header from '@/components/Header';
@@ -15,16 +16,22 @@ const orbitron = Orbitron({
   display: 'swap',
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://nebula-nomads-ci2j.vercel.app';
+
 export const metadata: Metadata = {
-  title: 'Nebula Nomads: The Ultimate AI NFT Experience',
+  title: 'Nebula Nomads - AI Cosmic NFTs with AR',
   description:
-    'AI-powered space exploration NFT project inspired by xAI. Mint, collect, and explore the cosmos with Nebula Nomads. NFT drop 2026.',
-  keywords: ['NFT drop 2026', 'xAI crypto', 'Nebula Nomads', 'AI NFT', 'space NFT', 'cosmic NFT'],
+    'AI-powered cosmic NFT collection. Mint, collect, and view Nebula Nomads in AR. NFT drop Q2 2026.',
+  keywords: ['NFT', 'AR', 'xAI', 'cosmic', 'Nebula Nomads', 'AI NFT', 'space NFT', 'mint 2026'],
   openGraph: {
-    title: 'Nebula Nomads – AI-Powered Explorers Conquering the Cosmos',
-    description: 'Join the Nebula Nomads. AI-curated space explorers. Mint Q2 2026.',
+    title: 'Nebula Nomads – AI Cosmic NFTs with AR',
+    description: 'Mint, collect, and explore the cosmos. AI-curated space explorers. Mint Q2 2026.',
     type: 'website',
+    url: siteUrl,
+    images: [{ url: `${siteUrl}/hero.png`, width: 1200, height: 630, alt: 'Nebula Nomads' }],
   },
+  twitter: { card: 'summary_large_image', title: 'Nebula Nomads - AI Cosmic NFTs with AR' },
+  manifest: '/manifest.json',
 };
 
 export default function RootLayout({
@@ -102,6 +109,7 @@ export default function RootLayout({
             `}
           </Script>
         )}
+        <Analytics />
       </body>
     </html>
   );

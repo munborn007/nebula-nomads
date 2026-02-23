@@ -1,0 +1,14 @@
+{
+  "name": "Nebula Nomads",
+  "short_name": "Nebula Nomads",
+  "description": "AI Cosmic NFTs with AR. Mint, collect, and explore the cosmos.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0f",
+  "theme_color": "#a020f0",
+  "icons": [
+    { "src": "/favicon.ico", "sizes": "48x48", "type": "image/x-icon" },
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

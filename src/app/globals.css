@@ -159,6 +159,14 @@ body {
   animation: nomad-breathe 2.5s ease-in-out infinite;
 }
 
+/* Explore Nomads grid — smooth image zoom on hover, avoids jank */
+.nomad-card img {
+  transition: transform 0.3s ease;
+}
+.nomad-card:hover img {
+  transform: scale(1.05);
+}
+
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -175,4 +183,21 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(180deg, #c040ff, #ff40ff);
+}
+
+/* ——— Wallet connect modal: make list scrollable and fully visible (fixes cut-off when many wallets). ——— */
+.wallet-connect-modal {
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+}
+.wallet-connect-list {
+  overflow-y: auto !important;
+  max-height: min(400px, 60vh);
+  padding-right: 6px;
+  -webkit-overflow-scrolling: touch;
+}
+.wallet-connect-option {
+  min-height: 52px;
+  flex-shrink: 0;
 }

@@ -21,6 +21,8 @@ const DUTCH_DECREASE_PER_HOUR = 0.01;
 const DUTCH_FLOOR_ETH = 0.05;
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 const DEMO_STORAGE_KEY = 'nebula-demo-mints';
+/** On-chain mint price (contract enforces 0.1 ETH when CONTRACT_ADDRESS is set). */
+const ON_CHAIN_MINT_PRICE_ETH = 0.1;
 
 /** Only this wallet can mint during test phase; it mints for free (0 ETH). */
 const ALLOWED_TEST_WALLET = '0x8e5464173Cf64cdcdE93Aa15C41EeB8E1752E82b';
@@ -118,10 +120,11 @@ export default function MintPage() {
   }, []);
 
   const isTestWallet = isAllowedTestWallet(walletState?.account ?? null);
-  const totalCostEth = isTestWallet ? 0 : priceEth * quantity;
+  const pricePerMint = contractConfigured ? ON_CHAIN_MINT_PRICE_ETH : priceEth;
+  const totalCostEth = isTestWallet ? 0 : pricePerMint * quantity;
   const balanceNum = walletState?.account ? parseFloat(walletState.balance) : 0;
   const insufficientBalance = !isTestWallet && balanceNum < totalCostEth;
-  const notAllowedToMint = walletState?.account && !isTestWallet;
+  const notAllowedToMint = !contractConfigured && !!walletState?.account && !isTestWallet;
 
   const handleMint = useCallback(async () => {
     if (!walletState?.account) return;
@@ -140,7 +143,7 @@ export default function MintPage() {
         getWalletStateIfConnected().then((s) => s.account && setWalletState(s));
         return;
       }
-      const valueWei = isTestWallet ? '0' : ethToWei(priceEth * quantity);
+      const valueWei = isTestWallet ? '0' : ethToWei(pricePerMint * quantity);
       const result = await mintNomads(quantity, valueWei, walletState.account);
       if (result.success) {
         setTxHash(result.txHash);
@@ -156,7 +159,7 @@ export default function MintPage() {
       setTxError(e instanceof Error ? e.message : 'Mint failed');
       setTxStatus('error');
     }
-  }, [walletState?.account, quantity, priceEth, isTestWallet, insufficientBalance, contractConfigured, loadSupply, loadFeed]);
+  }, [walletState?.account, quantity, pricePerMint, isTestWallet, insufficientBalance, contractConfigured, loadSupply, loadFeed]);
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12">
@@ -240,15 +243,15 @@ export default function MintPage() {
                 ))}
               </select>
               <p className="mb-4 text-slate-300">
-                Price: <span className="font-mono text-neon-cyan">{priceEth.toFixed(3)} ETH</span> each
-                (Dutch auction)
+                Price: <span className="font-mono text-neon-cyan">{pricePerMint.toFixed(3)} ETH</span> each
+                {contractConfigured ? ' (on-chain)' : ' (Dutch auction)'}
               </p>
               <p className="mb-4 text-sm text-slate-500">
                 Total: {totalCostEth.toFixed(3)} ETH {isTestWallet && <span className="text-emerald-400">(free — test wallet)</span>}
               </p>
               {notAllowedToMint && (
                 <p className="mb-3 text-sm text-amber-400">
-                  Minting is currently restricted to the test wallet only.
+                  Demo mode: minting is restricted to the test wallet only. Set contract address for real mint.
                 </p>
               )}
               {!contractConfigured && (
@@ -258,7 +261,7 @@ export default function MintPage() {
               )}
               {insufficientBalance && (
                 <p className="mb-3 text-sm text-red-400">
-                  Insufficient balance (need {(priceEth * quantity).toFixed(3)} ETH).
+                  Insufficient balance (need {totalCostEth.toFixed(3)} ETH).
                 </p>
               )}
               {txError && (

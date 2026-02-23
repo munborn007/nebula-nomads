@@ -1,50 +1,60 @@
-# Nebula Nomads Minting Guide
+# Nebula Nomads — On-Chain Minting (Sepolia / Mainnet)
 
-## Where Are NFTs Minted?
+## Overview
 
-### Current Setup: Demo Mode
+- **Contract:** ERC-721 `NebulaNomads` (OpenZeppelin)
+- **Supply:** 10,000
+- **Mint price:** 0.1 ETH (test wallet `0x8e5464173Cf64cdcdE93Aa15C41EeB8E1752E82b` mints for free)
+- **Max per tx:** 10
 
-**Right now, nothing is minted on a blockchain.** The app runs in **demo mode** when `NEXT_PUBLIC_CONTRACT_ADDRESS` is not set:
+## 1. Deploy contract (Remix or Hardhat)
 
-- **Supply**: Shows 0 / 10000 (from API mock)
-- **Live mint feed**: Shows fake addresses (0xaaaa...aaa0, etc.)
-- **When you click "Mint"**: A 2-second simulation runs. The button shows "Minted!" but **no NFT is created anywhere** — no blockchain transaction, no on-chain record.
+### Option A: Remix + Sepolia
 
-This lets you test the UI and flow without deploying a contract or spending gas.
+1. Go to [remix.ethereum.org](https://remix.ethereum.org).
+2. Create `NebulaNomads.sol` (copy from `contracts/NebulaNomads.sol`).
+3. Compile with Solidity 0.8.20; use “Injected Provider - MetaMask” and select Sepolia.
+4. Deploy with constructor arg: base URI (e.g. `https://your-site.com/api/metadata/`).
+5. Copy the deployed contract address.
 
----
+### Option B: Hardhat
 
-### On-Chain Mode: Real Minting
-
-To mint real NFTs to a blockchain:
-
-1. **Deploy your NFT smart contract** (ERC-721 or compatible) to Ethereum, Base, Sepolia, etc.
-2. **Set the environment variable** in `.env.local`:
+1. From project root:
    ```bash
-   NEXT_PUBLIC_CONTRACT_ADDRESS=0xYourDeployedContractAddress
+   npm install --save-dev hardhat @nomicfoundation/hardhat-toolbox
+   npx hardhat init
    ```
-3. **Restart the dev server** (`npm run dev`).
-4. Connect your wallet and click Mint. A real transaction will be sent to the contract. You’ll see a "View transaction →" link (Etherscan/Basescan) when mint succeeds.
+2. Install OpenZeppelin:
+   ```bash
+   npm install @openzeppelin/contracts
+   ```
+3. Add to `.env` (or copy from `.env.example`):
+   - `ALCHEMY_API_KEY` (from [alchemy.com](https://www.alchemy.com)) or `INFURA_API_KEY`
+   - `DEPLOYER_PRIVATE_KEY` (MetaMask export private key for deployer wallet)
+4. Get Sepolia ETH: [sepoliafaucet.com](https://sepoliafaucet.com) or Alchemy/Infura faucet.
+5. Deploy:
+   ```bash
+   npx hardhat run scripts/deploy.js --network sepolia
+   ```
+6. Copy the printed contract address.
 
-**Where it goes:**
-- The NFT is minted **on the blockchain** your wallet is connected to (e.g. Ethereum mainnet, Base, Sepolia).
-- The contract address is what you set in `NEXT_PUBLIC_CONTRACT_ADDRESS`.
-- You can view your NFT in your wallet (e.g. MetaMask) and on block explorers (OpenSea, etc.) once metadata is indexed.
+## 2. Configure the app
 
----
+- **Local:** In `nebula-nomads-app/.env.local` set:
+  ```env
+  NEXT_PUBLIC_CONTRACT_ADDRESS=0xYourDeployedAddress
+  ```
+- **Vercel:** Project → Settings → Environment Variables → add `NEXT_PUBLIC_CONTRACT_ADDRESS` = `0xYourDeployedAddress`, then redeploy.
 
-### Flow Summary
+## 3. Test mint
 
-| Step | Demo Mode | On-Chain Mode |
-|------|-----------|---------------|
-| Connect wallet | ✓ | ✓ |
-| Click Mint | Simulates 2s, shows "Minted!" | Sends tx to contract |
-| NFT created | No | Yes (on-chain) |
-| Supply updates | No (stays 0) | Yes (from contract) |
-| Transaction link | No | Yes (explorer URL) |
+1. Open the app (local or Vercel).
+2. Connect a wallet on Sepolia (or mainnet if you deployed there).
+3. Mint page: when `NEXT_PUBLIC_CONTRACT_ADDRESS` is set, real mint is enabled.
+4. Test wallet `0x8e5464173Cf64cdcdE93Aa15C41EeB8E1752E82b` mints for free; others pay 0.1 ETH per mint.
+5. After mint, check supply on the mint page and transaction on [sepolia.etherscan.io](https://sepolia.etherscan.io).
 
----
+## 4. Mainnet (Q2 2026)
 
-### Test Wallet
-
-During development, the wallet `0x8e5464173Cf64cdcdE93Aa15C41EeB8E1752E82b` is allowed to mint **for free** (0 ETH) even when the contract is configured. Other wallets must pay the Dutch auction price.
+- Deploy the same contract to Ethereum mainnet (e.g. Hardhat with `mainnet` network and RPC/key).
+- Set `NEXT_PUBLIC_CONTRACT_ADDRESS` to the mainnet contract in Vercel and redeploy.

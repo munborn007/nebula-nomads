@@ -113,32 +113,35 @@ export default function WalletConnectButton({
 
   return (
     <div className="relative flex flex-col items-end gap-1">
+      {/* Wallet picker modal: overflow-y-auto and max-height so list is fully visible and scrollable (fixes cut-off when many wallets). */}
       {showPicker && providers.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="absolute right-0 top-full z-50 mt-2 w-56 rounded-xl border border-neon-purple/40 bg-[#0a001a]/98 p-2 shadow-[0_0_30px_rgba(160,32,240,0.3)] backdrop-blur-xl"
+          className="wallet-connect-modal absolute right-0 top-full z-[9999] mt-2 w-64 rounded-xl border border-neon-purple/40 bg-[#0a001a]/98 p-2 shadow-[0_0_30px_rgba(160,32,240,0.3)] backdrop-blur-xl"
         >
           <p className="mb-2 px-2 text-xs text-neon-cyan/80">Choose a wallet</p>
-          {providers.map((p) => (
-            <button
-              key={p.info.uuid}
-              type="button"
-              onClick={() => connectWith(p.provider)}
-              className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-slate-200 transition hover:bg-neon-purple/20 hover:text-neon-purple"
-            >
-              {p.info.icon && (
-                <img
-                  src={p.info.icon}
-                  alt=""
-                  className="h-8 w-8 rounded-full bg-slate-700 object-contain"
-                  width={32}
-                  height={32}
-                />
-              )}
-              <span className="font-medium">{p.info.name}</span>
-            </button>
-          ))}
+          <div className="wallet-connect-list overflow-y-auto pr-1">
+            {providers.map((p) => (
+              <button
+                key={p.info.uuid}
+                type="button"
+                onClick={() => connectWith(p.provider)}
+                className="wallet-connect-option flex w-full min-h-[52px] items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-slate-200 transition hover:bg-neon-purple/20 hover:text-neon-purple"
+              >
+                {p.info.icon && (
+                  <img
+                    src={p.info.icon}
+                    alt=""
+                    className="h-8 w-8 flex-shrink-0 rounded-full bg-slate-700 object-contain"
+                    width={32}
+                    height={32}
+                  />
+                )}
+                <span className="font-medium">{p.info.name}</span>
+              </button>
+            ))}
+          </div>
           <button
             type="button"
             onClick={() => setShowPicker(false)}
