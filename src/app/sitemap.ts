@@ -5,7 +5,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const base = process.env.NEXT_PUBLIC_SITE_URL || 'https://nebula-nomads.vercel.app';
   return [
     { url: base, lastModified: new Date(), changeFrequency: 'weekly', priority: 1 },
+    { url: `${base}/explore`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.95 },
     { url: `${base}/mint`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${base}/mint-1-20`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.85 },
+    { url: `${base}/buy-21-30`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.85 },
     { url: `${base}/ar-viewer`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
     { url: `${base}/roadmap`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
     { url: `${base}/about`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },

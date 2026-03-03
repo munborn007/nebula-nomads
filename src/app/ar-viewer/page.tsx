@@ -30,11 +30,13 @@ export default function ARViewerPage() {
   }, []);
 
   useEffect(() => {
-    if (walletState?.account) {
-      setRarity(getNomadRarityFromWallet(walletState.account));
-    } else {
-      setRarity('common');
-    }
+    queueMicrotask(() => {
+      if (walletState?.account) {
+        setRarity(getNomadRarityFromWallet(walletState.account));
+      } else {
+        setRarity('common');
+      }
+    });
   }, [walletState?.account]);
 
   return (

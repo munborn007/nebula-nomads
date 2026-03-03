@@ -5,7 +5,8 @@ import './globals.css';
 import 'react-vertical-timeline-component/style.min.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import CosmicEcho from '@/components/CosmicEcho';
+import CosmicBackground from '@/components/CosmicBackground';
+import NebulaParticlesWrapper from '@/components/NebulaParticlesWrapper';
 import WormholeTransition from '@/components/WormholeTransition';
 import ExtensionErrorShield from '@/components/ExtensionErrorShield';
 import Script from 'next/script';
@@ -28,7 +29,11 @@ export const metadata: Metadata = {
     description: 'Mint, collect, and explore the cosmos. AI-curated space explorers. Mint Q2 2026.',
     type: 'website',
     url: siteUrl,
-    images: [{ url: `${siteUrl}/hero.png`, width: 1200, height: 630, alt: 'Nebula Nomads' }],
+    // Prefer hero.png (1200×630) for social cards; next.svg is fallback if hero.png is missing.
+    images: [
+      { url: `${siteUrl}/hero.png`, width: 1200, height: 630, alt: 'Nebula Nomads' },
+      { url: `${siteUrl}/next.svg`, width: 512, height: 512, alt: 'Nebula Nomads' },
+    ],
   },
   twitter: { card: 'summary_large_image', title: 'Nebula Nomads - AI Cosmic NFTs with AR' },
   manifest: '/manifest.json',
@@ -45,16 +50,17 @@ export default function RootLayout({
         {/* Load error suppression script BEFORE Next.js initializes */}
         <Script id="early-error-suppression" strategy="beforeInteractive" src="/suppress-extension-errors.js" />
         <ExtensionErrorShield />
-        <CosmicEcho>
-          <WormholeTransition>
-            <Header />
-            <main className="relative z-10 min-h-screen pt-16">{children}</main>
-            <Footer />
-          </WormholeTransition>
-        </CosmicEcho>
+        <CosmicBackground />
+        <NebulaParticlesWrapper />
+        <WormholeTransition>
+          <Header />
+          <main className="relative z-10 min-h-screen pt-16">{children}</main>
+          <Footer />
+        </WormholeTransition>
         <Script
           src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"
           strategy="lazyOnload"
+          type="module"
         />
         {/* Suppress wallet extension errors so they don't trigger Next.js error overlay */}
         <Script id="suppress-extension-errors" strategy="beforeInteractive">

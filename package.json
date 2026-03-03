@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3001 --webpack",
+    "dev:turbo": "next dev -p 3001",
+    "clean": "rimraf .next",
+    "dev:fresh": "rimraf .next && next dev -p 3001 --webpack",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
@@ -12,8 +15,10 @@
     "@google/model-viewer": "^4.1.0",
     "@react-three/drei": "^9.117.0",
     "@react-three/fiber": "^8.17.0",
+    "@radix-ui/react-tooltip": "^1.1.4",
     "@tsparticles/react": "^3.0.0",
     "@tsparticles/slim": "^3.9.1",
+    "@use-gesture/react": "^10.3.1",
     "@vercel/analytics": "^1.6.1",
     "framer-motion": "^12.34.2",
     "html2canvas": "^1.4.1",
@@ -28,6 +33,7 @@
     "web3": "^4.16.0"
   },
   "devDependencies": {
+    "rimraf": "^5.0.10",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

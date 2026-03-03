@@ -9,7 +9,7 @@ export default function WormholeTransition({ children }: { children: React.React
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
-    setIsTransitioning(true);
+    queueMicrotask(() => setIsTransitioning(true));
     const t = setTimeout(() => setIsTransitioning(false), 500);
     return () => clearTimeout(t);
   }, [pathname]);
@@ -24,11 +24,27 @@ export default function WormholeTransition({ children }: { children: React.React
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 2 }}
             transition={{ duration: 0.35, ease: 'easeInOut' }}
-            className="fixed inset-0 z-[9998] flex items-center justify-center"
+            className="fixed inset-0 z-[9998] flex items-center justify-center overflow-hidden"
             style={{
               background: 'radial-gradient(ellipse at center, #1e1b4b 0%, #0a001a 50%, #000 100%)',
             }}
           >
+            {/* Star streak lines (warp-in effect) */}
+            {[...Array(8)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute h-px w-32 bg-gradient-to-r from-transparent via-neon-cyan to-transparent opacity-60"
+                style={{
+                  left: `${15 + i * 10}%`,
+                  top: '50%',
+                  rotate: -30 + i * 8,
+                }}
+                initial={{ scaleX: 0, opacity: 0 }}
+                animate={{ scaleX: 1, opacity: 0.6 }}
+                exit={{ scaleX: 0, opacity: 0 }}
+                transition={{ delay: i * 0.03, duration: 0.4 }}
+              />
+            ))}
             {/* Neon pulse ring */}
             <motion.div
               initial={{ scale: 0.3, opacity: 1 }}

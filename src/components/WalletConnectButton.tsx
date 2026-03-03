@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useLayoutEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import {
   connectWallet,
@@ -28,6 +29,21 @@ export default function WalletConnectButton({
   });
   const [showPicker, setShowPicker] = useState(false);
   const [providers, setProviders] = useState<EIP6963ProviderDetail[]>([]);
+  const [pickerPosition, setPickerPosition] = useState<{ top: number; left: number } | null>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  // Position picker below the button (fixed so it's not clipped by parent overflow-hidden).
+  useLayoutEffect(() => {
+    if (!showPicker || !buttonRef.current) {
+      if (!showPicker) queueMicrotask(() => setPickerPosition(null));
+      return;
+    }
+    const rect = buttonRef.current.getBoundingClientRect();
+    setPickerPosition({
+      top: rect.bottom + 8,
+      left: Math.max(8, rect.right - 264),
+    });
+  }, [showPicker]);
 
   const connectWith = useCallback(
     async (provider: EIP6963ProviderDetail['provider']) => {
@@ -111,47 +127,60 @@ export default function WalletConnectButton({
     );
   }
 
+  const pickerModal = showPicker && providers.length > 0 && pickerPosition && typeof document !== 'undefined' && (
+    <>
+      <div
+        className="modal-overlay fixed inset-0 z-[9998]"
+        aria-hidden
+        onClick={() => setShowPicker(false)}
+      />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, rotateX: -18 }}
+        animate={{ opacity: 1, scale: 1, rotateX: 0 }}
+        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+        style={{ top: pickerPosition.top, left: pickerPosition.left, transformPerspective: 800 }}
+        className="wallet-connect-modal modal-panel fixed z-[9999] w-64 rounded-xl p-2 origin-center"
+      >
+      <p className="mb-2 px-2 text-xs text-neon-cyan/80">Choose a wallet</p>
+      <div className="wallet-connect-list overflow-y-auto pr-1">
+        {providers.map((p) => (
+          <button
+            key={p.info.uuid}
+            type="button"
+            onClick={() => connectWith(p.provider)}
+            className="wallet-connect-option flex w-full min-h-[52px] items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-slate-200 transition hover:bg-neon-purple/20 hover:text-neon-purple"
+          >
+            {p.info.icon && (
+              // eslint-disable-next-line @next/next/no-img-element -- EIP-6963 wallet icon URL is dynamic
+              <img
+                src={p.info.icon}
+                alt=""
+                className="h-8 w-8 flex-shrink-0 rounded-full bg-slate-700 object-contain"
+                width={32}
+                height={32}
+              />
+            )}
+            <span className="font-medium">{p.info.name}</span>
+          </button>
+        ))}
+      </div>
+      <button
+        type="button"
+        onClick={() => setShowPicker(false)}
+        className="mt-2 w-full rounded-lg border border-neon-purple/30 py-1.5 text-xs text-slate-400 hover:bg-neon-purple/10"
+      >
+        Cancel
+      </button>
+    </motion.div>
+    </>
+  );
+
   return (
     <div className="relative flex flex-col items-end gap-1">
-      {/* Wallet picker modal: overflow-y-auto and max-height so list is fully visible and scrollable (fixes cut-off when many wallets). */}
-      {showPicker && providers.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="wallet-connect-modal absolute right-0 top-full z-[9999] mt-2 w-64 rounded-xl border border-neon-purple/40 bg-[#0a001a]/98 p-2 shadow-[0_0_30px_rgba(160,32,240,0.3)] backdrop-blur-xl"
-        >
-          <p className="mb-2 px-2 text-xs text-neon-cyan/80">Choose a wallet</p>
-          <div className="wallet-connect-list overflow-y-auto pr-1">
-            {providers.map((p) => (
-              <button
-                key={p.info.uuid}
-                type="button"
-                onClick={() => connectWith(p.provider)}
-                className="wallet-connect-option flex w-full min-h-[52px] items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-slate-200 transition hover:bg-neon-purple/20 hover:text-neon-purple"
-              >
-                {p.info.icon && (
-                  <img
-                    src={p.info.icon}
-                    alt=""
-                    className="h-8 w-8 flex-shrink-0 rounded-full bg-slate-700 object-contain"
-                    width={32}
-                    height={32}
-                  />
-                )}
-                <span className="font-medium">{p.info.name}</span>
-              </button>
-            ))}
-          </div>
-          <button
-            type="button"
-            onClick={() => setShowPicker(false)}
-            className="mt-2 w-full rounded-lg border border-neon-purple/30 py-1.5 text-xs text-slate-400 hover:bg-neon-purple/10"
-          >
-            Cancel
-          </button>
-        </motion.div>
-      )}
+      {/* Wallet picker rendered in portal so it's not clipped by parent overflow-hidden; fixed position keeps it visible. */}
+      {pickerModal && createPortal(pickerModal, document.body)}
       <motion.button
+        ref={buttonRef}
         type="button"
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}

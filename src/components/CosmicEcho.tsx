@@ -55,6 +55,7 @@ export default function CosmicEcho({ defaultSeed = '', onSeedChange, children }:
       oscillatorRef.current = null;
       gainRef.current = null;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mouse/updateAudio omitted to avoid re-running on every move
   }, [audioEnabled, seedInput]);
 
   useEffect(() => {

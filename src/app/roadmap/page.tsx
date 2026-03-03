@@ -35,7 +35,7 @@ const PHASES = [
 
 export default function RoadmapPage() {
   return (
-    <div className="mx-auto max-w-4xl px-4 py-12">
+    <div className="mx-auto max-w-4xl px-4 py-12 pt-24">
       <motion.h1
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -45,15 +45,16 @@ export default function RoadmapPage() {
         Roadmap
       </motion.h1>
       <div className="mt-12">
-        <VerticalTimeline lineColor="#a020f0">
+        <VerticalTimeline lineColor="rgba(0,255,255,0.4)">
           {PHASES.map((phase) => (
             <VerticalTimelineElement
               key={phase.title}
               contentStyle={{
-                background: 'rgba(10, 0, 26, 0.8)',
-                border: '1px solid rgba(160, 32, 240, 0.4)',
+                background: 'linear-gradient(160deg, rgba(2,4,8,0.95), rgba(10,0,26,0.85))',
+                border: '1px solid rgba(0, 255, 255, 0.25)',
                 borderRadius: '12px',
-                boxShadow: '0 0 30px rgba(160,32,240,0.2)',
+                boxShadow: '0 0 30px rgba(0,255,255,0.1), inset 0 1px 0 rgba(255,255,255,0.05)',
+                backdropFilter: 'blur(12px)',
               }}
               contentArrowStyle={{ borderRight: '7px solid rgba(160, 32, 240, 0.6)' }}
               date={phase.date}

@@ -5,11 +5,16 @@ function anonymize(addr: string) {
 }
 
 export async function GET(req: NextRequest) {
-  const limit = Math.min(parseInt(req.nextUrl.searchParams.get('limit') || '10', 10), 50);
-  const mock = Array.from({ length: limit }, (_, i) => ({
-    address: anonymize(`0x${'a'.repeat(40 - String(i).length)}${i}`),
-    quantity: (i % 3) + 1,
-    time: new Date(Date.now() - i * 60000).toISOString(),
-  }));
-  return NextResponse.json(mock);
+  try {
+    const limit = Math.min(parseInt(req.nextUrl.searchParams.get('limit') || '10', 10), 50);
+    const mock = Array.from({ length: limit }, (_, i) => ({
+      address: anonymize(`0x${'a'.repeat(40 - String(i).length)}${i}`),
+      quantity: (i % 3) + 1,
+      time: new Date(Date.now() - i * 60000).toISOString(),
+    }));
+    return NextResponse.json(mock);
+  } catch (e) {
+    console.error('API mint-feed error:', e);
+    return NextResponse.json({ error: 'Internal error' }, { status: 500 });
+  }
 }

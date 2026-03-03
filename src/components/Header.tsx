@@ -8,8 +8,11 @@ import WalletConnectButton from './WalletConnectButton';
 
 const NAV: { href: string; label: string; external?: boolean }[] = [
   { href: '/', label: 'Home' },
+  { href: '/explore', label: 'Explore' },
   { href: '/ar-viewer', label: 'AR Viewer' },
   { href: '/mint', label: 'Mint' },
+  { href: '/mint-1-20', label: 'Mint 1–20' },
+  { href: '/buy-21-30', label: 'Buy 21–30' },
   { href: '/roadmap', label: 'Roadmap' },
   { href: '/about', label: 'About' },
   { href: '/community', label: 'Community' },

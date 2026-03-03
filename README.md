@@ -17,13 +17,33 @@ AI-powered space exploration NFT project. Features **Cosmic Echo** (real-time We
 
 ```bash
 npm install
-npm install @vercel/analytics --legacy-peer-deps   # if peer dependency conflicts
-cp .env.example .env.local
-# Edit .env.local: NEXT_PUBLIC_CONTRACT_ADDRESS (for real mint), NEXT_PUBLIC_GA_ID, NEXT_PUBLIC_SITE_URL
+```
+
+(Project uses `.npmrc` with `legacy-peer-deps=true` so install succeeds despite the three.js / @google/model-viewer peer conflict.)
+
+```bash
+copy .env.example .env.local
+```
+
+Edit `.env.local`: `NEXT_PUBLIC_CONTRACT_ADDRESS` (for real mint), `NEXT_PUBLIC_GA_ID`, `NEXT_PUBLIC_SITE_URL`.
+
+**Start dev (PowerShell):**
+```powershell
+npm run clean
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Or in one go (works in cmd; in PowerShell use the two commands above):
+```bash
+npm run dev:fresh
+```
+
+Open **[http://localhost:3001](http://localhost:3001)** (dev server runs on port 3001).
+
+**If the page keeps loading or doesn’t appear:**  
+1. Run `npm run clean` then `npm run dev`. Wait for “✓ Compiled” (first run may take 30–60 s), then open http://localhost:3001.  
+2. If it still hangs: close any other `npm run dev`, delete `.next\dev\lock` if it exists, then run `npm run clean` and `npm run dev` again.  
+3. To try Turbopack: `npm run dev:turbo`.
 
 ## Deploy to Vercel
 

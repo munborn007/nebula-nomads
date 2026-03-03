@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useCallback, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { hashToSeed, seededRandom, seedToColor } from '@/utils/cosmicSeed';
 
 export type NebulaGeneratorProps = {
@@ -175,6 +175,7 @@ export default function NebulaGenerator({
       cleanupRef.current?.();
       cleanupRef.current = null;
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- mouseX/mouseY omitted to avoid re-running canvas on every move
   }, [mounted, seedInput]);
 
   if (!mounted) return <div className={`nebula-canvas-container ${className}`} />;

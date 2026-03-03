@@ -24,8 +24,10 @@ const DEMO_STORAGE_KEY = 'nebula-demo-mints';
 /** On-chain mint price (contract enforces 0.1 ETH when CONTRACT_ADDRESS is set). */
 const ON_CHAIN_MINT_PRICE_ETH = 0.1;
 
-/** Only this wallet can mint during test phase; it mints for free (0 ETH). */
-const ALLOWED_TEST_WALLET = '0x8e5464173Cf64cdcdE93Aa15C41EeB8E1752E82b';
+/** Only this wallet can mint during test phase; it mints for free (0 ETH). Set via NEXT_PUBLIC_PAYMENT_WALLET. */
+const ALLOWED_TEST_WALLET =
+  (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_PAYMENT_WALLET) ||
+  '0x8e5464173Cf64cdcdE93Aa15C41EeB8E1752E82b';
 function isAllowedTestWallet(account: string | null): boolean {
   return !!account && account.toLowerCase() === ALLOWED_TEST_WALLET.toLowerCase();
 }
@@ -104,8 +106,10 @@ export default function MintPage() {
   }, [contractConfigured]);
 
   useEffect(() => {
-    loadSupply();
-    loadFeed();
+    queueMicrotask(() => {
+      loadSupply();
+      loadFeed();
+    });
   }, [loadSupply, loadFeed]);
 
   useEffect(() => {
@@ -159,7 +163,7 @@ export default function MintPage() {
       setTxError(e instanceof Error ? e.message : 'Mint failed');
       setTxStatus('error');
     }
-  }, [walletState?.account, quantity, pricePerMint, isTestWallet, insufficientBalance, contractConfigured, loadSupply, loadFeed]);
+  }, [walletState, quantity, pricePerMint, isTestWallet, insufficientBalance, contractConfigured, loadSupply, loadFeed]);
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12">

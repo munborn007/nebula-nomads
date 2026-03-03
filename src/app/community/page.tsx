@@ -17,7 +17,7 @@ const NomadARViewer = dynamic(() => import('@/components/NomadARViewer'), {
 const TWITTER_URL = 'https://x.com/NomadsOfNebula';
 
 const SOCIAL = [
-  { label: 'Discord', href: 'https://discord.gg/your-invite', icon: 'Discord' },
+  { label: 'Discord', href: 'https://discord.gg/nebula-nomads', icon: 'Discord' },
 ];
 
 export default function CommunityPage() {
@@ -34,12 +34,12 @@ export default function CommunityPage() {
     if (walletState?.account) {
       fetchUserNFTs(walletState.account).then(setNfts);
     } else {
-      setNfts([]);
+      queueMicrotask(() => setNfts([]));
     }
   }, [walletState?.account]);
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-12">
+    <div className="mx-auto max-w-4xl px-4 py-12 pt-24">
       <motion.h1
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -149,7 +149,7 @@ export default function CommunityPage() {
         <h3 className="font-medium text-white">Discord</h3>
         <p className="mt-2 text-slate-400">Join the conversation.</p>
         <a
-          href="https://discord.gg/your-invite"
+          href="https://discord.gg/nebula-nomads"
           target="_blank"
           rel="noopener noreferrer"
           className="mt-3 inline-flex items-center rounded-lg border border-neon-cyan/50 bg-neon-cyan/10 px-4 py-2 text-neon-cyan hover:bg-neon-cyan/20"

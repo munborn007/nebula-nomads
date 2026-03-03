@@ -388,6 +388,38 @@ export async function mintNomads(
   }
 }
 
+/**
+ * Send ETH to an address (e.g. for buy-21-30). Returns txHash or error.
+ */
+export async function sendEth(
+  toAddress: string,
+  valueWei: string,
+  fromAddress: string
+): Promise<MintResult> {
+  const web3 = getWeb3();
+  if (!web3) return { success: false, error: 'Wallet not connected.' };
+  try {
+    const receipt = await web3.eth.sendTransaction({
+      from: fromAddress,
+      to: toAddress,
+      value: valueWei,
+      gas: '21000',
+    });
+    const txHash = typeof receipt === 'object' && receipt.transactionHash
+      ? String(receipt.transactionHash)
+      : String(receipt);
+    return { success: true, txHash };
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (err && typeof err === 'object' && 'code' in err) {
+      const code = (err as { code: number }).code;
+      if (code === 4001) return { success: false, error: 'Transaction rejected.' };
+      if (code === -32603) return { success: false, error: 'Insufficient funds.' };
+    }
+    return { success: false, error: msg || 'Send failed.' };
+  }
+}
+
 /** Block explorer URL for a given chain and tx hash. */
 export function getExplorerTxUrl(chainId: number | null, txHash: string): string | null {
   if (!txHash) return null;

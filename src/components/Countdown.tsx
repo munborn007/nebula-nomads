@@ -10,7 +10,7 @@ function useCountdown() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    queueMicrotask(() => setMounted(true));
     const tick = () => {
       const now = new Date();
       const d = MINT_DATE.getTime() - now.getTime();

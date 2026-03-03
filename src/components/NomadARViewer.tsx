@@ -33,7 +33,8 @@ function CosmicParticlesOverlay({
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0x000000, 0);
-    containerRef.current.appendChild(renderer.domElement);
+    const container = containerRef.current;
+    if (container) container.appendChild(renderer.domElement);
 
     const count = 300;
     const positions = new Float32Array(count * 3);
@@ -65,7 +66,7 @@ function CosmicParticlesOverlay({
     scene.add(points);
 
     let frameId = 0;
-    let startTime = Date.now();
+    const startTime = Date.now();
     let currentGlow = glowIntensity;
     let currentSpeed = particleSpeed;
 
@@ -99,8 +100,8 @@ function CosmicParticlesOverlay({
       renderer.dispose();
       geometry.dispose();
       material.dispose();
-      if (containerRef.current?.contains(renderer.domElement)) {
-        containerRef.current.removeChild(renderer.domElement);
+      if (container?.contains(renderer.domElement)) {
+        container.removeChild(renderer.domElement);
       }
     };
   }, [glowIntensity, particleSpeed]);
