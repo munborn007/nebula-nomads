@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { nomads } from '@/data/nomads';
 import NomadCard from '@/components/NomadCard';
@@ -8,9 +9,11 @@ import WalletConnectButton from '@/components/WalletConnectButton';
 import {
   getWeb3,
   getWalletStateIfConnected,
+  getMintedSupply,
   mintNomads,
   getExplorerTxUrl,
   CONTRACT_ADDRESS,
+  MAX_SUPPLY,
   type Web3State,
 } from '@/utils/web3';
 
@@ -29,6 +32,7 @@ function ethToWei(eth: number): string {
 
 export default function Mint120Page() {
   const [walletState, setWalletState] = useState<Web3State | null>(null);
+  const [supply, setSupply] = useState<{ minted: number; total: number } | null>(null);
   const [txStatus, setTxStatus] = useState<'idle' | 'pending' | 'success' | 'error'>('idle');
   const [txError, setTxError] = useState<string | null>(null);
   const [txHash, setTxHash] = useState<string | null>(null);
@@ -38,11 +42,23 @@ export default function Mint120Page() {
   const balanceNum = walletState?.account ? parseFloat(walletState.balance) : 0;
   const insufficientBalance = !isTestWallet && balanceNum < costEth;
 
+  const loadSupply = useCallback(() => {
+    if (contractConfigured) {
+      getMintedSupply().then((minted) => setSupply({ minted, total: MAX_SUPPLY }));
+    } else {
+      setSupply({ minted: 0, total: MAX_SUPPLY });
+    }
+  }, [contractConfigured]);
+
   useEffect(() => {
     getWalletStateIfConnected().then((s) => {
       if (s.account) setWalletState(s);
     });
   }, []);
+
+  useEffect(() => {
+    loadSupply();
+  }, [loadSupply]);
 
   const handleMint = useCallback(async () => {
     if (!walletState?.account) return;
@@ -55,6 +71,7 @@ export default function Mint120Page() {
       if (result.success) {
         setTxHash(result.txHash);
         setTxStatus('success');
+        loadSupply();
         getWalletStateIfConnected().then((s) => s.account && setWalletState(s));
       } else {
         setTxError(result.error);
@@ -64,7 +81,7 @@ export default function Mint120Page() {
       setTxError(e instanceof Error ? e.message : 'Mint failed');
       setTxStatus('error');
     }
-  }, [walletState, isTestWallet]);
+  }, [walletState, isTestWallet, loadSupply]);
 
   return (
     <div className="relative min-h-screen">
@@ -85,6 +102,30 @@ export default function Mint120Page() {
         >
           On-chain mint: 0.1 ETH each (free for test wallet). Payments go to contract; owner withdraws to project wallet.
         </motion.p>
+
+        {supply && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="mx-auto mt-6 max-w-md rounded-xl border border-neon-cyan/30 bg-black/30 px-4 py-3"
+          >
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-slate-400">Supply</span>
+              <span className="font-mono font-semibold text-neon-cyan">
+                {supply.minted.toLocaleString()} / {supply.total.toLocaleString()} minted
+              </span>
+            </div>
+            <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-slate-800">
+              <motion.div
+                className="h-full rounded-full bg-gradient-to-r from-neon-purple to-neon-cyan"
+                initial={{ width: 0 }}
+                animate={{ width: `${Math.min(100, (supply.minted / supply.total) * 100)}%` }}
+                transition={{ duration: 0.6 }}
+              />
+            </div>
+          </motion.div>
+        )}
 
         <motion.div
           initial={{ opacity: 0, y: 10 }}

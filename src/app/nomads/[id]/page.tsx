@@ -6,10 +6,13 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getNomadById, getNomadReview, nomads } from '@/data/nomads';
 import type { NomadRarity } from '@/data/nomads';
+import dynamic from 'next/dynamic';
 import HoloButton from '@/components/HoloButton';
 import HoloStatBar from '@/components/HoloStatBar';
 import RadarChart from '@/components/RadarChart';
 import type { RadarStat } from '@/components/RadarChart';
+
+const Nomad3DViewer = dynamic(() => import('@/components/three/Nomad3DViewer'), { ssr: false });
 
 const RARITY_STYLES: Record<NomadRarity, string> = {
   Common: 'bg-gray-600 rarity-common',
@@ -120,7 +123,11 @@ export default function NomadDetailPage() {
   };
 
   const radarStats: RadarStat[] = Object.entries(review.powerLevels).map(([label, value]) => ({ label: label.slice(0, 4), value }));
-  const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+  const siteBase = typeof window !== 'undefined' ? window.location.origin : 'https://nebula-nomads-ci2j.vercel.app';
+  const shareUrl = typeof window !== 'undefined' ? window.location.href : `${siteBase}/nomads/${nomad.id}`;
+  const twitterText = encodeURIComponent(`${nomad.name} — Nebula Nomad #${nomad.id}. Mint cosmic AI NFTs.`);
+  const twitterShareUrl = `https://twitter.com/intent/tweet?text=${twitterText}&url=${encodeURIComponent(shareUrl)}`;
+  const openseaUrl = `https://opensea.io/assets/sepolia/${process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || '0x0'}/${nomad.id}`;
   const share = () => {
     if (typeof navigator !== 'undefined' && navigator.share) {
       navigator.share({ title: nomad.name, url: shareUrl, text: nomad.lore });
@@ -192,7 +199,10 @@ export default function NomadDetailPage() {
               />
             )}
           </div>
-          <div className="futuristic-panel rounded-xl p-4 text-center border border-neon-cyan/30">
+          <div className="mt-4 w-full aspect-square max-w-[200px] mx-auto">
+            <Nomad3DViewer nomadId={nomad.id} color={nomad.rarity === 'Legendary' ? '#eab308' : nomad.rarity === 'Epic' ? '#a855f7' : '#00ffff'} />
+          </div>
+          <div className="futuristic-panel rounded-xl p-4 text-center border border-neon-cyan/30 mt-4">
             <p className="text-xs text-slate-500 uppercase tracking-widest">Overall Rating</p>
             <motion.p
               className="text-4xl font-bold text-white mt-1"
@@ -236,12 +246,28 @@ export default function NomadDetailPage() {
             <Link href="/ar-viewer" className="inline-flex items-center rounded-lg border border-neon-cyan/50 bg-neon-cyan/10 px-4 py-2 text-sm text-neon-cyan hover:bg-neon-cyan/20">
               View in AR
             </Link>
+            <a
+              href={twitterShareUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center rounded-lg border border-slate-600 bg-slate-800/50 px-4 py-2 text-sm text-slate-300 hover:bg-slate-700/50"
+            >
+              Share on X
+            </a>
+            <a
+              href={openseaUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center rounded-lg border border-slate-600 bg-slate-800/50 px-4 py-2 text-sm text-slate-300 hover:bg-slate-700/50"
+            >
+              OpenSea
+            </a>
             <button
               type="button"
               onClick={share}
               className="inline-flex items-center rounded-lg border border-slate-600 bg-slate-800/50 px-4 py-2 text-sm text-slate-300 hover:bg-slate-700/50"
             >
-              Share
+              Copy link
             </button>
             <Link href="/explore" className="inline-flex items-center rounded-lg border border-slate-600 px-4 py-2 text-sm text-slate-400 hover:text-white">
               ← Explore all

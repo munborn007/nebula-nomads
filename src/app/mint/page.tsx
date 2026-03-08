@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { fetchSupply, fetchMintFeed } from '@/utils/api';
 import type { SupplyResponse } from '@/utils/api';
@@ -271,22 +272,47 @@ export default function MintPage() {
               {txError && (
                 <p className="mb-3 text-sm text-red-400">{txError}</p>
               )}
-              {txStatus === 'success' && txHash && (
-                <p className="mb-3 text-sm">
-                  <a
-                    href={getExplorerTxUrl(walletState?.chainId ?? null, txHash) ?? '#'}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-neon-cyan underline hover:text-neon-purple"
-                  >
-                    View transaction on block explorer →
-                  </a>
-                </p>
-              )}
-              {txStatus === 'success' && !txHash && !contractConfigured && (
-                <p className="mb-3 text-sm text-emerald-400">
-                  Demo mint saved. Supply and feed updated locally.
-                </p>
+              {txStatus === 'success' && (txHash || !contractConfigured) && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-4 rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-4"
+                >
+                  <p className="text-sm font-medium text-emerald-300">
+                    {txHash ? 'Mint successful.' : 'Demo mint saved.'}
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {txHash && (
+                      <>
+                        <a
+                          href={getExplorerTxUrl(walletState?.chainId ?? null, txHash) ?? '#'}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="rounded-lg bg-emerald-500/30 px-3 py-1.5 text-xs font-medium text-emerald-200 hover:bg-emerald-500/50"
+                        >
+                          View on Explorer
+                        </a>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const url = getExplorerTxUrl(walletState?.chainId ?? null, txHash);
+                            if (url && navigator.clipboard) navigator.clipboard.writeText(url);
+                            if (url && navigator.share) navigator.share({ title: 'My Nebula Nomad mint', url });
+                          }}
+                          className="rounded-lg bg-slate-600/50 px-3 py-1.5 text-xs font-medium text-slate-200 hover:bg-slate-500/50"
+                        >
+                          Share
+                        </button>
+                      </>
+                    )}
+                    <Link
+                      href="/explore"
+                      className="rounded-lg bg-neon-cyan/20 px-3 py-1.5 text-xs font-medium text-neon-cyan hover:bg-neon-cyan/30"
+                    >
+                      Explore more Nomads
+                    </Link>
+                  </div>
+                </motion.div>
               )}
               <motion.button
                 type="button"

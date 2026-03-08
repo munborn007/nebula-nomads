@@ -5,10 +5,14 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
 import WalletConnectButton from './WalletConnectButton';
+import LiveOnSepoliaBadge from './LiveOnSepoliaBadge';
 
 const NAV: { href: string; label: string; external?: boolean }[] = [
   { href: '/', label: 'Home' },
+  { href: '/dashboard', label: 'Dashboard' },
   { href: '/explore', label: 'Explore' },
+  { href: '/metaverse', label: 'Metaverse' },
+  { href: '/blog', label: 'Blog' },
   { href: '/ar-viewer', label: 'AR Viewer' },
   { href: '/mint', label: 'Mint' },
   { href: '/mint-1-20', label: 'Mint 1–20' },
@@ -70,7 +74,8 @@ export default function Header() {
             );
           })}
         </nav>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          <LiveOnSepoliaBadge />
           <WalletConnectButton />
           <button
             type="button"

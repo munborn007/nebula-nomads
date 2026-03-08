@@ -5,10 +5,11 @@ import './globals.css';
 import 'react-vertical-timeline-component/style.min.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import CosmicBackground from '@/components/CosmicBackground';
+import CosmicBackgroundWrapper from '@/components/CosmicBackgroundWrapper';
 import NebulaParticlesWrapper from '@/components/NebulaParticlesWrapper';
 import WormholeTransition from '@/components/WormholeTransition';
 import ExtensionErrorShield from '@/components/ExtensionErrorShield';
+import WrongNetworkBanner from '@/components/WrongNetworkBanner';
 import Script from 'next/script';
 
 const orbitron = Orbitron({
@@ -20,13 +21,13 @@ const orbitron = Orbitron({
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://nebula-nomads-ci2j.vercel.app';
 
 export const metadata: Metadata = {
-  title: 'Nebula Nomads - AI Cosmic NFTs with AR',
+  title: 'Nebula Nomads - Cosmic AI NFTs with AR',
   description:
-    'AI-powered cosmic NFT collection. Mint, collect, and view Nebula Nomads in AR. NFT drop Q2 2026.',
-  keywords: ['NFT', 'AR', 'xAI', 'cosmic', 'Nebula Nomads', 'AI NFT', 'space NFT', 'mint 2026'],
+    'Cosmic AI NFT collection. Mint, collect, stake, and view Nebula Nomads in AR. Dashboard, Metaverse, staking. Mint Q2 2026.',
+  keywords: ['NFT', 'AR', 'xAI', 'cosmic', 'Nebula Nomads', 'AI NFT', 'space NFT', 'mint 2026', 'Web3'],
   openGraph: {
-    title: 'Nebula Nomads – AI Cosmic NFTs with AR',
-    description: 'Mint, collect, and explore the cosmos. AI-curated space explorers. Mint Q2 2026.',
+    title: 'Nebula Nomads – Cosmic AI NFTs with AR',
+    description: 'Mint, collect, stake, explore. AI-curated space explorers. Dashboard, Metaverse, staking. Mint Q2 2026.',
     type: 'website',
     url: siteUrl,
     // Prefer hero.png (1200×630) for social cards; next.svg is fallback if hero.png is missing.
@@ -35,7 +36,7 @@ export const metadata: Metadata = {
       { url: `${siteUrl}/next.svg`, width: 512, height: 512, alt: 'Nebula Nomads' },
     ],
   },
-  twitter: { card: 'summary_large_image', title: 'Nebula Nomads - AI Cosmic NFTs with AR' },
+  twitter: { card: 'summary_large_image', title: 'Nebula Nomads - Cosmic AI NFTs with AR' },
   manifest: '/manifest.json',
 };
 
@@ -50,11 +51,13 @@ export default function RootLayout({
         {/* Load error suppression script BEFORE Next.js initializes */}
         <Script id="early-error-suppression" strategy="beforeInteractive" src="/suppress-extension-errors.js" />
         <ExtensionErrorShield />
-        <CosmicBackground />
+        <a href="#main-content" className="skip-to-main">Skip to main content</a>
+        <WrongNetworkBanner />
+        <CosmicBackgroundWrapper />
         <NebulaParticlesWrapper />
         <WormholeTransition>
           <Header />
-          <main className="relative z-10 min-h-screen pt-16">{children}</main>
+          <main id="main-content" className="relative z-10 min-h-screen pt-16" tabIndex={-1}>{children}</main>
           <Footer />
         </WormholeTransition>
         <Script
