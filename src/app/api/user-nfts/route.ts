@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+const HEX_ADDRESS = /^0x[a-fA-F0-9]{40}$/;
+
 export async function GET(req: NextRequest) {
   try {
-    const address = req.nextUrl.searchParams.get('address');
-    if (!address) return NextResponse.json([]);
+    let address: string | null = null;
+    try {
+      address = req.nextUrl.searchParams.get('address');
+    } catch {
+      return NextResponse.json([]);
+    }
+    if (!address || !HEX_ADDRESS.test(address)) return NextResponse.json([]);
     // Placeholder: return mock NFTs for connected wallet (replace with real indexer later)
     return NextResponse.json([
       { tokenId: '1', metadata: { name: 'Nomad #1' } },

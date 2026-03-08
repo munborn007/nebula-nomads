@@ -6,13 +6,10 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getNomadById, getNomadReview, nomads } from '@/data/nomads';
 import type { NomadRarity } from '@/data/nomads';
-import dynamic from 'next/dynamic';
 import HoloButton from '@/components/HoloButton';
 import HoloStatBar from '@/components/HoloStatBar';
 import RadarChart from '@/components/RadarChart';
 import type { RadarStat } from '@/components/RadarChart';
-
-const Nomad3DViewer = dynamic(() => import('@/components/three/Nomad3DViewer'), { ssr: false });
 
 const RARITY_STYLES: Record<NomadRarity, string> = {
   Common: 'bg-gray-600 rarity-common',
@@ -198,9 +195,6 @@ export default function NomadDetailPage() {
                 onLoad={() => setImageError(false)}
               />
             )}
-          </div>
-          <div className="mt-4 w-full aspect-square max-w-[200px] mx-auto">
-            <Nomad3DViewer nomadId={nomad.id} color={nomad.rarity === 'Legendary' ? '#eab308' : nomad.rarity === 'Epic' ? '#a855f7' : '#00ffff'} />
           </div>
           <div className="futuristic-panel rounded-xl p-4 text-center border border-neon-cyan/30 mt-4">
             <p className="text-xs text-slate-500 uppercase tracking-widest">Overall Rating</p>

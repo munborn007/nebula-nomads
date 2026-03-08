@@ -14,8 +14,15 @@ export async function fetchMintFeed(limit = 10): Promise<{ address: string; quan
   return res.json();
 }
 
+const HEX_ADDRESS = /^0x[a-fA-F0-9]{40}$/;
+
 export async function fetchUserNFTs(address: string): Promise<{ tokenId: string; metadata?: unknown }[]> {
-  const res = await fetch(`${API_BASE}/user-nfts?address=${encodeURIComponent(address)}`);
-  if (!res.ok) return [];
-  return res.json();
+  if (!address || !HEX_ADDRESS.test(address)) return [];
+  try {
+    const res = await fetch(`${API_BASE}/user-nfts?address=${encodeURIComponent(address)}`);
+    if (!res.ok) return [];
+    return res.json();
+  } catch {
+    return [];
+  }
 }

@@ -9,7 +9,9 @@
     "dev:fresh": "rimraf .next && next dev -p 3001 --webpack",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "deploy:sepolia": "hardhat run scripts/deploy.js --network sepolia",
+    "deploy:local": "hardhat run scripts/deploy.js --network hardhat"
   },
   "dependencies": {
     "@google/model-viewer": "^4.1.0",
@@ -37,13 +39,17 @@
     "zustand": "^5.0.11"
   },
   "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@openzeppelin/contracts": "^5.0.2",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/three": "^0.183.0",
+    "dotenv": "^16.4.5",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "hardhat": "^2.22.0",
     "rimraf": "^5.0.10",
     "tailwindcss": "^4",
     "typescript": "^5"

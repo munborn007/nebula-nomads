@@ -5,7 +5,7 @@ import './globals.css';
 import 'react-vertical-timeline-component/style.min.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import CosmicBackgroundWrapper from '@/components/CosmicBackgroundWrapper';
+import CosmicBackground from '@/components/CosmicBackground';
 import NebulaParticlesWrapper from '@/components/NebulaParticlesWrapper';
 import WormholeTransition from '@/components/WormholeTransition';
 import ExtensionErrorShield from '@/components/ExtensionErrorShield';
@@ -53,18 +53,14 @@ export default function RootLayout({
         <ExtensionErrorShield />
         <a href="#main-content" className="skip-to-main">Skip to main content</a>
         <WrongNetworkBanner />
-        <CosmicBackgroundWrapper />
+        <CosmicBackground />
         <NebulaParticlesWrapper />
         <WormholeTransition>
           <Header />
           <main id="main-content" className="relative z-10 min-h-screen pt-16" tabIndex={-1}>{children}</main>
           <Footer />
         </WormholeTransition>
-        <Script
-          src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"
-          strategy="lazyOnload"
-          type="module"
-        />
+        {/* model-viewer loaded on-demand by NomadARViewer — avoid double CustomElementRegistry registration */}
         {/* Suppress wallet extension errors so they don't trigger Next.js error overlay */}
         <Script id="suppress-extension-errors" strategy="beforeInteractive">
           {`

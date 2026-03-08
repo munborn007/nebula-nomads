@@ -5,10 +5,7 @@ import { existsSync } from 'fs';
 
 const filename = (num: number) => `nomad-${String(num).padStart(4, '0')}.png`;
 
-/**
- * All paths we try (in order). Server finds the image if it exists at any of these.
- */
-export function getImagePathCandidates(num: number): string[] {
+function getImagePathCandidates(num: number): string[] {
   const cwd = process.cwd();
   return [
     join(cwd, 'public', 'nfts', 'thumbs', filename(num)),

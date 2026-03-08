@@ -17,10 +17,10 @@ export default function Footer() {
               © {new Date().getFullYear()} Nebula Nomads. All rights reserved.
             </p>
             <p className="mt-1 text-xs text-neon-cyan/80">Powered by xAI</p>
-            <p className="mt-2 text-xs text-slate-500">
+            <div className="mt-2 text-xs text-slate-500">
               Refer friends — mint discount coming soon.{' '}
               <AirdropTeaserModal />
-            </p>
+            </div>
           </div>
           <div className="flex items-center gap-6">
             <motion.span whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }} className="inline-block">
