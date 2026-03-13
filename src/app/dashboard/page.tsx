@@ -78,9 +78,14 @@ export default function DashboardPage() {
         >
           {/* Owned NFTs */}
           <motion.section variants={item} className="futuristic-panel rounded-2xl p-6 data-grid-bg">
-            <h2 className="text-xl font-bold text-neon-cyan mb-4" style={{ textShadow: '0 0 15px rgba(0,255,255,0.5)' }}>
-              Owned Nomads
-            </h2>
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+              <h2 className="text-xl font-bold text-neon-cyan" style={{ textShadow: '0 0 15px rgba(0,255,255,0.5)' }}>
+                Owned Nomads
+              </h2>
+              <Link href="/profile" className="text-sm text-neon-cyan/90 hover:text-neon-cyan border border-neon-cyan/40 hover:border-neon-cyan/70 rounded-lg px-3 py-1.5 transition">
+                View full profile →
+              </Link>
+            </div>
             {nfts.length === 0 ? (
               <p className="text-slate-400 py-6">No Nomads in this wallet yet. Mint one to get started.</p>
             ) : (

@@ -11,7 +11,9 @@
     "start": "next start",
     "lint": "eslint",
     "deploy:sepolia": "hardhat run scripts/deploy.js --network sepolia",
-    "deploy:local": "hardhat run scripts/deploy.js --network hardhat"
+    "deploy:local": "hardhat run scripts/deploy.js --network hardhat",
+    "deploy:nebula-token": "hardhat run scripts/deploy-nebula-token.js --network sepolia",
+    "deploy:all": "hardhat run scripts/deploy-all.js --network sepolia"
   },
   "dependencies": {
     "@google/model-viewer": "^4.1.0",
@@ -20,6 +22,7 @@
     "@react-three/fiber": "^8.17.0",
     "@react-three/postprocessing": "^3.0.4",
     "@react-three/rapier": "^2.2.0",
+    "@supabase/supabase-js": "^2.99.1",
     "@tsparticles/react": "^3.0.0",
     "@tsparticles/slim": "^3.9.1",
     "@use-gesture/react": "^10.3.1",

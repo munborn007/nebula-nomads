@@ -1,6 +1,12 @@
 # NFT thumbnail images
 
-Place your NFT images **in this folder** so they load on the Explore grid and on each NFT detail page (`/nomads/1` … `/nomads/30`).
+Place your NFT images **in this folder** so they load on **Profile** (`/profile`), Explore grid, and each NFT detail page (`/nomads/1` … `/nomads/30`).
+
+## Exact path for your minted NFT
+
+- **Folder:** `nebula-nomads-app/public/nfts/thumbs/`
+- **Token #1 file:** `nomad-0001.png` → full path: `public/nfts/thumbs/nomad-0001.png`
+- **In the app:** image URL is `/nfts/thumbs/nomad-0001.png`
 
 ## How to load the NFT image on the detail page
 

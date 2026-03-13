@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef, useLayoutEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import {
@@ -8,6 +8,7 @@ import {
   connectWithProvider,
   discoverEIP6963Providers,
   formatAddress,
+  getWalletStateIfConnected,
   type Web3State,
   type EIP6963ProviderDetail,
 } from '@/utils/web3';
@@ -31,6 +32,16 @@ export default function WalletConnectButton({
   const [providers, setProviders] = useState<EIP6963ProviderDetail[]>([]);
   const [pickerPosition, setPickerPosition] = useState<{ top: number; left: number } | null>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+
+  // Restore connected state on mount — wallet stays connected across page navigations and refreshes
+  useEffect(() => {
+    getWalletStateIfConnected().then((s) => {
+      if (s.account) {
+        setState(s);
+        onConnect?.(s);
+      }
+    });
+  }, []);
 
   // Position picker below the button (fixed so it's not clipped by parent overflow-hidden).
   useLayoutEffect(() => {

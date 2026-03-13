@@ -3,6 +3,7 @@
 import { useRef, useEffect, useCallback } from 'react';
 import * as THREE from 'three';
 import { useGameStore } from '@/lib/game-state';
+import { getRarityColor } from '@/lib/game-abilities';
 
 const MOVE_SPEED = 0.15;
 const SHARD_COLLECT_RADIUS = 1.2;
@@ -47,7 +48,8 @@ export default function GameScene({
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color('#050510');
-    scene.fog = new THREE.FogExp2('#050510', 0.035);
+    const fogDensity = 0.035;
+    scene.fog = new THREE.FogExp2('#050510', fogDensity);
 
     const camera = new THREE.PerspectiveCamera(55, container.clientWidth / container.clientHeight, 0.1, 100);
     camera.position.set(0, 2, 10);
@@ -123,9 +125,13 @@ export default function GameScene({
       islands.push(mesh);
     }
 
-    // Player avatar (Nomad)
+    // Player avatar (Nomad) — color by rarity (updated in animate from store)
     const avatarGeo = new THREE.SphereGeometry(0.35, 20, 16);
-    const avatarMat = new THREE.MeshStandardMaterial({ color: 0xa020f0, emissive: 0xa020f0, emissiveIntensity: 0.4 });
+    const avatarMat = new THREE.MeshStandardMaterial({
+      color: getRarityColor('Common'),
+      emissive: getRarityColor('Common'),
+      emissiveIntensity: 0.45,
+    });
     const playerAvatar = new THREE.Mesh(avatarGeo, avatarMat);
     playerAvatar.position.set(0, 0.5, 0);
     scene.add(playerAvatar);
@@ -148,6 +154,18 @@ export default function GameScene({
     ground.position.y = -1;
     scene.add(ground);
 
+    // Ability VFX: expanding burst when Q/E just used
+    const vfxGeo = new THREE.SphereGeometry(0.5, 16, 12);
+    const vfxMat = new THREE.MeshBasicMaterial({
+      color: 0x00ffff,
+      transparent: true,
+      opacity: 0.6,
+      depthWrite: false,
+    });
+    const abilityVfx = new THREE.Mesh(vfxGeo, vfxMat);
+    abilityVfx.visible = false;
+    scene.add(abilityVfx);
+
     const handleKeyDown = (e: KeyboardEvent) => { keysRef.current[e.key.toLowerCase()] = true; };
     const handleKeyUp = (e: KeyboardEvent) => { keysRef.current[e.key.toLowerCase()] = false; };
     window.addEventListener('keydown', handleKeyDown);
@@ -155,28 +173,57 @@ export default function GameScene({
 
     let raf: number;
     const clock = new THREE.Clock();
+    let vfxEndTime = 0;
 
     function animate() {
       raf = requestAnimationFrame(animate);
       const t = clock.getElapsedTime();
       const store = storeRef.current;
 
-      // WASD movement
-      let dx = 0, dz = 0, dy = 0;
-      if (keysRef.current['w']) dz -= 1;
-      if (keysRef.current['s']) dz += 1;
-      if (keysRef.current['a']) dx -= 1;
-      if (keysRef.current['d']) dx += 1;
-      if (keysRef.current[' ']) dy += 1;
-      if (keysRef.current['shift']) dy -= 1;
-      const len = Math.sqrt(dx * dx + dy * dy + dz * dz) || 1;
-      const nx = store.x + (dx / len) * MOVE_SPEED;
-      const nz = store.z + (dz / len) * MOVE_SPEED;
-      const ny = Math.max(0.1, Math.min(4, store.y + (dy / len) * MOVE_SPEED));
-      useGameStore.getState().setPosition(nx, ny, nz);
+      // Avatar color by rarity (updates when wallet connects / nomad changes)
+      const rarity = useGameStore.getState().nomadRarity ?? 'Common';
+      const col = getRarityColor(rarity);
+      if (avatarMat.emissive.getHex() !== col) {
+        avatarMat.color.setHex(col);
+        avatarMat.emissive.setHex(col);
+      }
+
+      // Death/respawn: darken then teleport to Nexus after 2s
+      if (store.isDead) {
+        if (scene.background instanceof THREE.Color) scene.background.setHex(0x000011);
+        if (store.respawnAt && Date.now() >= store.respawnAt) {
+          useGameStore.getState().respawn();
+        }
+        if (useGameStore.getState().isDead) {
+          if (controls) controls.update();
+          renderer.render(scene, camera);
+          return;
+        }
+      }
+      if (scene.background instanceof THREE.Color) scene.background.setHex(0x050510);
+
+      // WASD movement (disabled when dead)
+      let nx = store.x, ny = store.y, nz = store.z;
+      let moveDx = 0, moveDz = 0;
+      if (!store.isDead) {
+        let dx = 0, dz = 0, dy = 0;
+        if (keysRef.current['w']) dz -= 1;
+        if (keysRef.current['s']) dz += 1;
+        if (keysRef.current['a']) dx -= 1;
+        if (keysRef.current['d']) dx += 1;
+        if (keysRef.current[' ']) dy += 1;
+        if (keysRef.current['shift']) dy -= 1;
+        const len = Math.sqrt(dx * dx + dy * dy + dz * dz) || 1;
+        moveDx = dx / len;
+        moveDz = dz / len;
+        nx = store.x + moveDx * MOVE_SPEED;
+        nz = store.z + moveDz * MOVE_SPEED;
+        ny = Math.max(0.1, Math.min(4, store.y + (dy / len) * MOVE_SPEED));
+        useGameStore.getState().setPosition(nx, ny, nz);
+      }
 
       playerAvatar.position.set(nx, ny, nz);
-      if (dx !== 0 || dz !== 0) playerAvatar.rotation.y = Math.atan2(-dx, -dz);
+      if (moveDx !== 0 || moveDz !== 0) playerAvatar.rotation.y = Math.atan2(-moveDx, -moveDz);
 
       // Collect shards
       shardMeshes.forEach(({ id, mesh }) => {
@@ -192,8 +239,27 @@ export default function GameScene({
 
       useGameStore.getState().tickAbilities();
 
+      // Ability VFX: show burst for 400ms after Q or E
+      const now = Date.now();
+      const lastQ = useGameStore.getState().lastAbilityQTime;
+      const lastE = useGameStore.getState().lastAbilityETime;
+      if (now - lastQ < 400 || now - lastE < 400) {
+        if (abilityVfx.visible === false) vfxEndTime = now + 400;
+        abilityVfx.visible = true;
+        abilityVfx.position.set(nx, ny, nz);
+        const elapsed = 400 - (vfxEndTime - now);
+        const scale = 0.5 + (elapsed / 400) * 2;
+        abilityVfx.scale.setScalar(scale);
+        vfxMat.opacity = 0.6 * (1 - elapsed / 400);
+      } else {
+        abilityVfx.visible = false;
+      }
+
       nexus.position.y = -0.8 + Math.sin(t * 0.4) * 0.08;
       pulsar.intensity = 0.6 + Math.sin(t * 2) * 0.2;
+      // Weather: solar storm fog pulse (visibility dip)
+      const stormPulse = 0.035 + Math.sin(t * 0.3) * 0.015;
+      if (scene.fog && 'density' in scene.fog) scene.fog.density = stormPulse;
       islands.forEach((m, i) => {
         const baseY = (m as THREE.Mesh & { baseY?: number }).baseY ?? m.position.y;
         m.position.y = baseY + Math.sin(t * 0.5 + i) * 0.15;

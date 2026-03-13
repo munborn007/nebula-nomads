@@ -30,6 +30,32 @@ export type GameRoomState = {
   shardPositions: { id: string; x: number; y: number; z: number }[];
 };
 
+/** Battle room: 1v1 HP, attacks, winner. Server validates damage (anti-cheat). */
+export type BattlePlayerState = {
+  sessionId: string;
+  nomadId: number;
+  hp: number;
+  maxHp: number;
+  lastAttackAt: number;
+};
+
+export type BattleRoomState = {
+  phase: 'waiting' | 'fighting' | 'ended';
+  players: Record<string, BattlePlayerState>;
+  winner: string | null;
+  wagerShards: number;
+  questSync: { questId: string; progress: number }[];
+};
+
+/** Scheduled events (boss spawn, airdrop rain). Server broadcasts event type + countdown. */
+export type ScheduledEventType = 'boss_fight' | 'airdrop_rain' | 'tournament';
+export type ScheduledEvent = {
+  id: string;
+  type: ScheduledEventType;
+  startsAt: number;
+  payload?: Record<string, unknown>;
+};
+
 /** Schema for Colyseus (when using @colyseus/schema) */
 /*
 import { Schema, type, MapSchema } from '@colyseus/schema';

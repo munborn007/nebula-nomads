@@ -16,12 +16,12 @@ import {
   MAX_SUPPLY,
   type Web3State,
 } from '@/utils/web3';
+import { getDemoMintState, addDemoMint, getDemoMintCountForAddress } from '@/lib/demo-mint';
 
 const DUTCH_START_ETH = 0.2;
 const DUTCH_DECREASE_PER_HOUR = 0.01;
 const DUTCH_FLOOR_ETH = 0.05;
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
-const DEMO_STORAGE_KEY = 'nebula-demo-mints';
 /** On-chain mint price (contract enforces 0.1 ETH when CONTRACT_ADDRESS is set). */
 const ON_CHAIN_MINT_PRICE_ETH = 0.1;
 
@@ -31,33 +31,6 @@ const ALLOWED_TEST_WALLET =
   '0x8e5464173Cf64cdcdE93Aa15C41EeB8E1752E82b';
 function isAllowedTestWallet(account: string | null): boolean {
   return !!account && account.toLowerCase() === ALLOWED_TEST_WALLET.toLowerCase();
-}
-
-/** Get demo mint state from localStorage (supply + feed). */
-function getDemoMintState(): { minted: number; feed: { address: string; quantity: number; time: string }[] } {
-  if (typeof window === 'undefined') return { minted: 0, feed: [] };
-  try {
-    const raw = localStorage.getItem(DEMO_STORAGE_KEY);
-    if (!raw) return { minted: 0, feed: [] };
-    const parsed = JSON.parse(raw) as { minted: number; feed: { address: string; quantity: number; time: string }[] };
-    return { minted: parsed.minted ?? 0, feed: Array.isArray(parsed.feed) ? parsed.feed : [] };
-  } catch {
-    return { minted: 0, feed: [] };
-  }
-}
-
-/** Save demo mint to localStorage. */
-function addDemoMint(address: string, quantity: number): void {
-  if (typeof window === 'undefined') return;
-  const { minted, feed } = getDemoMintState();
-  const truncated = `${address.slice(0, 6)}...${address.slice(-4)}`;
-  const newFeed = [{ address: truncated, quantity, time: new Date().toISOString() }, ...feed.slice(0, 49)];
-  const newMinted = minted + quantity;
-  try {
-    localStorage.setItem(DEMO_STORAGE_KEY, JSON.stringify({ minted: newMinted, feed: newFeed }));
-  } catch {
-    // ignore
-  }
 }
 
 function getDutchPrice(): number {
@@ -306,12 +279,38 @@ export default function MintPage() {
                       </>
                     )}
                     <Link
-                      href="/explore"
+                      href="/profile"
                       className="rounded-lg bg-neon-cyan/20 px-3 py-1.5 text-xs font-medium text-neon-cyan hover:bg-neon-cyan/30"
+                    >
+                      View in Profile →
+                    </Link>
+                    <Link
+                      href="/explore"
+                      className="rounded-lg bg-slate-600/50 px-3 py-1.5 text-xs font-medium text-slate-200 hover:bg-slate-500/50"
                     >
                       Explore more Nomads
                     </Link>
                   </div>
+                </motion.div>
+              )}
+              {/* Always show "View in Profile" when connected so users know where to see their NFTs */}
+              {walletState?.account && (
+                <motion.div
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-4 rounded-xl border border-neon-cyan/30 bg-neon-cyan/5 px-4 py-3"
+                >
+                  <p className="text-sm text-slate-300">
+                    {contractConfigured
+                      ? 'View your full collection and NFT details in your Profile.'
+                      : `You have ${getDemoMintCountForAddress(walletState.account)} demo NFT(s). View them in your Profile.`}
+                  </p>
+                  <Link
+                    href="/profile"
+                    className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-neon-cyan hover:underline"
+                  >
+                    View your NFTs in Profile →
+                  </Link>
                 </motion.div>
               )}
               <motion.button

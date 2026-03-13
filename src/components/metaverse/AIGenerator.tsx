@@ -2,20 +2,33 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { generateZoneFromPrompt } from '@/lib/xai-procedural';
 
-/** AI Zone Generator — xAI prompt → procedural 3D island, export glb. */
+/** AI Zone Generator — prompt → procedural zone (stub; xAI API for production). */
 export default function AIGenerator() {
   const [prompt, setPrompt] = useState('');
   const [loading, setLoading] = useState(false);
+  const [generated, setGenerated] = useState<{ name: string; theme: string } | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!prompt.trim()) return;
     setLoading(true);
-    setTimeout(() => {
+    setGenerated(null);
+    try {
+      const res = await fetch('/api/generate-zone', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: prompt.trim() }),
+      });
+      const zone = res.ok ? await res.json() : await generateZoneFromPrompt(prompt);
+      setGenerated({ name: zone.name, theme: zone.theme });
+    } catch {
+      const zone = await generateZoneFromPrompt(prompt);
+      setGenerated({ name: zone.name, theme: zone.theme });
+    } finally {
       setLoading(false);
-      setPrompt('');
-    }, 1500);
+    }
   };
 
   return (
@@ -38,7 +51,7 @@ export default function AIGenerator() {
         className="w-full rounded-lg bg-black/40 border border-neon-cyan/30 px-4 py-3 text-slate-200 placeholder-slate-500 focus:border-neon-cyan focus:outline-none"
         disabled={loading}
       />
-      <div className="mt-4 flex gap-3">
+      <div className="mt-4 flex flex-wrap gap-3 items-center">
         <button
           type="submit"
           disabled={loading || !prompt.trim()}
@@ -46,8 +59,13 @@ export default function AIGenerator() {
         >
           {loading ? 'Generating...' : 'Generate'}
         </button>
+        {generated && (
+          <span className="text-sm text-neon-cyan">
+            Zone: {generated.name} ({generated.theme})
+          </span>
+        )}
         <span className="rounded-lg border border-slate-600 px-4 py-2 text-xs text-slate-500 self-center">
-          xAI API soon
+          xAI API for full gen
         </span>
       </div>
     </motion.form>

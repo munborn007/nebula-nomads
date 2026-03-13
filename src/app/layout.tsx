@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { Orbitron } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/react';
 import './globals.css';
 import 'react-vertical-timeline-component/style.min.css';
@@ -12,11 +11,8 @@ import ExtensionErrorShield from '@/components/ExtensionErrorShield';
 import WrongNetworkBanner from '@/components/WrongNetworkBanner';
 import Script from 'next/script';
 
-const orbitron = Orbitron({
-  variable: '--font-orbitron',
-  subsets: ['latin'],
-  display: 'swap',
-});
+/** Orbitron loaded via link to avoid build-time fetch (works in CI / offline build). */
+const BODY_FONT = '"Orbitron", system-ui, sans-serif';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://nebula-nomads-ci2j.vercel.app';
 
@@ -47,7 +43,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className={`${orbitron.variable} font-sans antialiased`}>
+      <head>
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap"
+        />
+      </head>
+      <body className="font-sans antialiased" style={{ fontFamily: BODY_FONT }}>
         {/* Load error suppression script BEFORE Next.js initializes */}
         <Script id="early-error-suppression" strategy="beforeInteractive" src="/suppress-extension-errors.js" />
         <ExtensionErrorShield />

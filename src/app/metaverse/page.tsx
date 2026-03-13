@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { MetaverseProvider } from '@/lib/metaverse-state';
@@ -11,6 +11,11 @@ import BattleArena from '@/components/metaverse/BattleArena';
 import StakingPod from '@/components/metaverse/StakingPod';
 import AIGenerator from '@/components/metaverse/AIGenerator';
 import OnboardingTeaser from '@/components/metaverse/OnboardingTeaser';
+import QuestPanel from '@/components/metaverse/QuestPanel';
+import MarketplaceStall from '@/components/metaverse/MarketplaceStall';
+import LeaderboardPanel from '@/components/metaverse/LeaderboardPanel';
+import EventScheduler from '@/components/metaverse/EventScheduler';
+import ShareButton from '@/components/metaverse/ShareButton';
 import { useGameStore } from '@/lib/game-state';
 import { fetchUserNFTs } from '@/utils/api';
 import { getWalletStateIfConnected } from '@/utils/web3';
@@ -19,7 +24,7 @@ import { getNomadById } from '@/data/nomads';
 /** Game scene: avatars, WASD, shards, abilities. */
 const GameScene = dynamic(
   () => import('@/components/three/GameScene'),
-  { ssr: false }
+  { ssr: false, loading: () => <div className="w-full h-[500px] sm:h-[600px] rounded-2xl bg-slate-900/50 flex items-center justify-center text-slate-400">Loading game...</div> }
 );
 
 export default function MetaversePage() {
@@ -38,7 +43,7 @@ export default function MetaversePage() {
         setOwnedNomadIds(ids);
         if (ids.length > 0) {
           const nomad = getNomadById(ids[0]);
-          if (nomad) setNomad(nomad.id, nomad.ability ?? 'Phase Shift', nomad.weapon ?? 'Cosmic Blade');
+          if (nomad) setNomad(nomad.id, nomad.ability ?? 'Phase Shift', nomad.weapon ?? 'Cosmic Blade', nomad.rarity);
         } else setNomad(0, 'Phase Shift', 'Cosmic Blade');
       });
     });
@@ -61,7 +66,7 @@ export default function MetaversePage() {
               Nebula Metaverse
             </h1>
             <p className="mt-3 text-slate-400 max-w-2xl mx-auto">
-              Play as your Nomad — WASD to fly, collect cosmic shards, use Q/E abilities. Connect wallet to spawn as owned NFT. Quest, battle, earn.
+              Play as your Nomad — WASD, Q/E/R abilities, collect shards, complete quests, battle, stake. Levels 1–50, daily bonus, share to Twitter.
             </p>
           </motion.div>
 
@@ -71,7 +76,9 @@ export default function MetaversePage() {
             transition={{ delay: 0.15 }}
             className="relative rounded-2xl overflow-hidden border border-neon-cyan/30 futuristic-panel"
           >
-            <GameScene className="block" ownedNomadIds={ownedNomadIds} />
+            <Suspense fallback={<div className="w-full h-[500px] sm:h-[600px] rounded-2xl bg-slate-900/50 flex items-center justify-center text-slate-400">Loading game...</div>}>
+              <GameScene className="block" ownedNomadIds={ownedNomadIds} />
+            </Suspense>
             <GameHUD />
             <MetaverseHUD />
           </motion.div>
@@ -98,11 +105,7 @@ export default function MetaversePage() {
               <p className="mt-2 font-medium text-neon-orange">Battle Arena</p>
               <p className="text-xs text-slate-500 mt-1">Coming Q3 2026</p>
             </div>
-            <div className="holo-card rounded-xl p-4 text-center opacity-80">
-              <span className="text-2xl">🎉</span>
-              <p className="mt-2 font-medium text-neon-pink">Live Events</p>
-              <p className="text-xs text-slate-500 mt-1">AMAs, airdrops</p>
-            </div>
+            <EventScheduler />
           </motion.div>
 
           {/* Battle Arena + Staking Pod */}
@@ -111,12 +114,20 @@ export default function MetaversePage() {
             <StakingPod />
           </div>
 
+          {/* Quests + Marketplace + Leaderboard */}
+          <div className="mt-8 grid sm:grid-cols-3 gap-6">
+            <QuestPanel />
+            <MarketplaceStall />
+            <LeaderboardPanel />
+          </div>
+
           {/* AI Zone Generator */}
           <div className="mt-8">
             <AIGenerator />
           </div>
 
-          <div className="mt-8 flex flex-wrap justify-center gap-4">
+          <div className="mt-8 flex flex-wrap justify-center gap-4 items-center">
+            <ShareButton />
             <Link href="/ar-viewer" className="holo-card rounded-xl px-6 py-3 text-neon-cyan hover:text-white transition">
               View in AR
             </Link>
